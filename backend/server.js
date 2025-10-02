@@ -28,11 +28,11 @@ function logRequests(req, res, next) {
 }
 app.use(logRequests);
 
-const allowedOrigins = ["http://localhost:3000"];
+const allowedOrigins = ["https://aeroecho.onrender.com"];
 
-// if (NODE_ENV === "development" || NODE_ENV === "staging") {
-//   allowedOrigins.push("http://localhost:3000");
-// }
+if (NODE_ENV === "development" || NODE_ENV === "staging") {
+  allowedOrigins.push("http://localhost:3000");
+}
 
 const corsOptions = {
   origin: function (origin, callback) {
