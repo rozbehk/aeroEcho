@@ -5,7 +5,6 @@ import { renderToString } from "react-dom/server";
 import { divIcon } from "leaflet";
 
 export function MapBounds({ setBoundries }) {
-  // Destructure props properly
   const map = useMap();
 
   useEffect(() => {
@@ -22,12 +21,11 @@ export function MapBounds({ setBoundries }) {
       };
 
       console.log(data);
-      setBoundries(data); // Actually call the setter function
+      setBoundries(data);
     };
 
     map.on("moveend", handleMoveEnd);
 
-    // Cleanup event listener
     return () => {
       map.off("moveend", handleMoveEnd);
     };
@@ -37,16 +35,15 @@ export function MapBounds({ setBoundries }) {
 }
 
 export const createRotatedFlightIcon = (flight) => {
-  const heading = flight[10] || 0;
-  const velocity = flight[9] || 0;
-  const altitude = flight[7] || 0;
+  const heading = flight.track || 0;
+  const velocity = flight.gs || 0;
+  const altitude = flight.alt_baro || 0;
 
-  // Different yellow shades based on flight characteristics
-  let iconColor = "#FFD700"; // Default gold yellow
+  let iconColor = "#FFD700";
   if (altitude < 1000) {
-    iconColor = "#FFC107"; // Amber for low altitude
+    iconColor = "#FFC107";
   } else if (velocity > 250) {
-    iconColor = "#F9A825"; // Darker yellow for high speed
+    iconColor = "#F9A825";
   }
 
   const iconHtml = renderToString(

@@ -2,7 +2,6 @@
 
 # dependencies
 /node_modules
-*/node_modules
 /.pnp
 .pnp.*
 .yarn/*
@@ -32,9 +31,7 @@ yarn-error.log*
 .pnpm-debug.log*
 
 # env files (can opt-in for committing if needed)
-.env
-.env.local
-.env.production
+.env*
 
 # vercel
 .vercel
@@ -42,12 +39,3 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
-
-
-# Build outputs
-.next/
-dist/
-build/
-
-# Logs
-*.log

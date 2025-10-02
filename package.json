@@ -1,30 +1,15 @@
 {
-  "name": "aero-echo",
-  "version": "0.1.0",
+  "name": "my-fullstack-app",
   "private": true,
   "scripts": {
-    "dev": "next dev",
-    "build": "next build",
-    "start": "next start",
-    "lint": "eslint"
-  },
-  "dependencies": {
-    "@emotion/react": "^11.14.0",
-    "@emotion/styled": "^11.14.1",
-    "@mui/icons-material": "^7.3.2",
-    "@mui/material": "^7.3.2",
-    "@types/leaflet": "^1.9.20",
-    "axios": "^1.12.2",
-    "leaflet": "^1.9.4",
-    "next": "15.5.3",
-    "react": "19.1.0",
-    "react-dom": "19.1.0",
-    "react-leaflet": "^5.0.0",
-    "react-leaflet-markercluster": "^5.0.0-rc.0"
+    "dev": "concurrently \"npm run backend:dev\" \"npm run frontend:dev\"",
+    "backend:dev": "cd backend && npm run dev",
+    "frontend:dev": "cd frontend && npm run dev",
+    "backend:start": "cd backend && npm start",
+    "frontend:start": "cd frontend && npm start",
+    "install:all": "cd backend && npm install && cd ../frontend && npm install"
   },
   "devDependencies": {
-    "@eslint/eslintrc": "^3",
-    "eslint": "^9",
-    "eslint-config-next": "15.5.3"
+    "concurrently": "^8.2.2"
   }
 }

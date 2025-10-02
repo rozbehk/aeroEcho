@@ -1,20 +1,13 @@
-export async function OpenStreetGet(data) {
-  console.log("get data", data);
-
+export async function getFlightsApi(data) {
   try {
-    const response = await fetch("/api/opensky", {
-      method: "POST",
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/flights`, {
+      method: "GET",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({
-        southWest: data.southWest,
-        northEast: data.northEast,
-      }),
     });
 
     if (!response.ok) {
-      // Only consume the response once
       let errorMessage;
       try {
         const errorData = await response.json();
@@ -26,14 +19,8 @@ export async function OpenStreetGet(data) {
       throw new Error(errorMessage);
     }
 
-    // Parse the JSON only once and store it
     const result = await response.json();
-
-    console.log("Response data:", {
-      state: result.states,
-      time: new Date(result.time * 1000).toISOString(),
-    });
-
+    console.log(result);
     return result;
   } catch (error) {
     console.error("Failed to fetch aircraft data:", error);
