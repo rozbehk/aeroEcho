@@ -33,7 +33,7 @@ const allowedOrigins = ["https://aeroecho.onrender.com"];
 if (NODE_ENV === "development" || NODE_ENV === "staging") {
   allowedOrigins.push("http://localhost:3000");
 }
-
+//test
 const corsOptions = {
   origin: function (origin, callback) {
     if (!origin || allowedOrigins.indexOf(origin) !== -1) {
