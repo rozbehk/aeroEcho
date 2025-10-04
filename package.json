@@ -1,5 +1,6 @@
 {
   "name": "aeroecho-fullstack",
+  "version": "1.0.0",
   "private": true,
   "scripts": {
     "dev": "concurrently \"npm run backend:dev\" \"npm run frontend:dev\"",
