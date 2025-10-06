@@ -125,6 +125,23 @@ const FlightsLayer = ({ flightsData, updateInterval = 5000 }) => {
   return null;
 };
 
+const InitialBounds = ({ setBoundries }) => {
+  const map = useMap();
+
+  useEffect(() => {
+    // Wait for map to be ready, then set initial bounds
+    map.whenReady(() => {
+      const bounds = map.getBounds();
+      setBoundries({
+        southWest: bounds.getSouthWest(),
+        northEast: bounds.getNorthEast(),
+      });
+    });
+  }, [map, setBoundries]);
+
+  return null;
+};
+
 const createPlaneIcon = (heading = 0) => {
   const html = `
     <div style="
@@ -220,6 +237,7 @@ const MapView = () => {
           worldCopyJump={true}
         >
           <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+          <InitialBounds setBoundries={setBoundaries} />
           <FlightsLayer flightsData={flights} updateInterval={2000} />
           <MapBounds setBoundries={setBoundaries} />
         </MapContainer>
