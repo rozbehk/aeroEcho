@@ -1,5 +1,6 @@
 {
   "name": "aeroecho-fullstack",
+  "version": "1.0.0",
   "private": true,
   "scripts": {
     "dev": "concurrently \"npm run backend:dev\" \"npm run frontend:dev\"",
@@ -13,5 +14,8 @@
   },
   "devDependencies": {
     "concurrently": "^8.2.2"
+  },
+  "dependencies": {
+    "leaflet-rotatedmarker": "^0.2.0"
   }
 }

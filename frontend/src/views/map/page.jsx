@@ -19,16 +19,40 @@ if (typeof window !== "undefined") {
   });
 }
 
+const getCategoryIcon = (category, heading = 0, size = [25, 25]) => {
+  console.log(category);
+  const iconUrl = `/icons/${category || "default"}.svg`;
+
+  // Create a rotated divIcon wrapper for the image
+  const html = `
+    <div style="
+      transform: rotate(${heading}deg);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: ${size[0]}px;
+      height: ${size[1]}px;
+      filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
+    ">
+      <img src="${iconUrl}" style="width: 100%; height: 100%;" />
+    </div>
+  `;
+
+  return L.divIcon({
+    html,
+    className: "",
+    iconSize: size,
+    iconAnchor: [size[0] / 2, size[1] / 2],
+  });
+};
+
 const FlightsLayer = ({ flightsData, updateInterval = 5000 }) => {
   const map = useMap();
   const flightsRef = useRef({});
 
   const drawMarker = (lat, lon, icon) => {
     const longitudes = [lon, lon - 360, lon + 360];
-    return longitudes.map((lng) => {
-      const marker = L.marker([lat, lng], { icon }).addTo(map);
-      return marker;
-    });
+    return longitudes.map((lng) => L.marker([lat, lng], { icon }).addTo(map));
   };
 
   useEffect(() => {
@@ -39,8 +63,8 @@ const FlightsLayer = ({ flightsData, updateInterval = 5000 }) => {
       if (!f.lat || !f.lon) return;
 
       const flightId = f.hex || f.flight || `${f.lat}_${f.lon}`;
-      const direction = f.track || f.nav_heading || f.true_heading || 0;
-      const icon = createPlaneIcon(direction);
+      const heading = f.track || f.true_heading || 0; // Get heading from track or true_heading
+      const icon = getCategoryIcon(f.category, heading);
 
       if (!flightsRef.current[flightId]) {
         const markers = drawMarker(f.lat, f.lon, icon);
@@ -62,6 +86,7 @@ const FlightsLayer = ({ flightsData, updateInterval = 5000 }) => {
           endTime: now + updateInterval,
           markers,
           flightInfo: f,
+          heading: heading,
         };
       } else {
         const flight = flightsRef.current[flightId];
@@ -70,8 +95,9 @@ const FlightsLayer = ({ flightsData, updateInterval = 5000 }) => {
         flight.startTime = now;
         flight.endTime = now + updateInterval;
         flight.flightInfo = f;
+        flight.heading = heading;
 
-        const newIcon = createPlaneIcon(direction);
+        const newIcon = getCategoryIcon(f.category, heading);
 
         const popupContent = `
           <strong>Flight:</strong> ${f.flight?.trim() || "Unknown"}<br>
@@ -91,6 +117,7 @@ const FlightsLayer = ({ flightsData, updateInterval = 5000 }) => {
       }
     });
 
+    // Remove old flights
     const currentFlightIds = new Set(
       flightsData.map((f) => f.hex || f.flight || `${f.lat}_${f.lon}`)
     );
@@ -102,6 +129,7 @@ const FlightsLayer = ({ flightsData, updateInterval = 5000 }) => {
     });
   }, [flightsData, map, updateInterval]);
 
+  // Animate flight movement
   useEffect(() => {
     let animFrame;
     const animate = () => {
@@ -125,56 +153,20 @@ const FlightsLayer = ({ flightsData, updateInterval = 5000 }) => {
   return null;
 };
 
-const createPlaneIcon = (heading = 0) => {
-  const html = `
-    <div style="
-      transform: rotate(${heading}deg);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      width: 28px;
-      height: 28px;
-      filter: drop-shadow(0 2px 4px rgba(0,0,0,0.4));
-    ">
-      <svg width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-        <path d="M21 16v-2l-8-5V3.5c0-.83-.67-1.5-1.5-1.5S10 2.67 10 3.5V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5l8 2.5z" 
-              fill="#dc2626" 
-              stroke="#000000" 
-              stroke-width="1"
-              stroke-linejoin="round"/>
-      </svg>
-    </div>
-  `;
-  return L.divIcon({
-    html,
-    className: "",
-    iconSize: [28, 28],
-    iconAnchor: [14, 14],
-  });
-};
+const InitialBounds = ({ setBoundries }) => {
+  const map = useMap();
 
-const createSimplePlaneIcon = (heading = 0) => {
-  const html = `
-    <div style="
-      transform: rotate(${heading}deg);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      width: 24px;
-      height: 24px;
-      color: #dc2626;
-      font-size: 18px;
-      font-weight: bold;
-    ">
-      ✈️
-    </div>
-  `;
-  return L.divIcon({
-    html,
-    className: "",
-    iconSize: [24, 24],
-    iconAnchor: [12, 12],
-  });
+  useEffect(() => {
+    map.whenReady(() => {
+      const bounds = map.getBounds();
+      setBoundries({
+        southWest: bounds.getSouthWest(),
+        northEast: bounds.getNorthEast(),
+      });
+    });
+  }, [map, setBoundries]);
+
+  return null;
 };
 
 const MapView = () => {
@@ -220,6 +212,7 @@ const MapView = () => {
           worldCopyJump={true}
         >
           <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+          <InitialBounds setBoundries={setBoundaries} />
           <FlightsLayer flightsData={flights} updateInterval={2000} />
           <MapBounds setBoundries={setBoundaries} />
         </MapContainer>
