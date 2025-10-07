@@ -21,7 +21,7 @@ if (typeof window !== "undefined") {
 
 const getCategoryIcon = (category, heading = 0, size = [25, 25]) => {
   console.log(category);
-  const iconUrl = `/icons/${category || "default"}.svg`;
+  const iconUrl = `/icons/${category?.toLowerCase() || "default"}.svg`;
 
   // Create a rotated divIcon wrapper for the image
   const html = `
