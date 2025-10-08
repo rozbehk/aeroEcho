@@ -20,7 +20,7 @@ export async function getFlightsApi(data) {
     }
 
     const result = await response.json();
-    console.log(result);
+    // console.log(result);
     return result;
   } catch (error) {
     console.error("Failed to fetch aircraft data:", error);
