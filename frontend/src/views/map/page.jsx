@@ -20,7 +20,6 @@ if (typeof window !== "undefined") {
 }
 
 const getCategoryIcon = (category, heading = 0, size = [25, 25]) => {
-  console.log(category);
   const iconUrl = `/icons/${category?.toLowerCase() || "default"}.svg`;
 
   // Create a rotated divIcon wrapper for the image
@@ -34,7 +33,13 @@ const getCategoryIcon = (category, heading = 0, size = [25, 25]) => {
       height: ${size[1]}px;
       filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
     ">
-      <img src="${iconUrl}" style="width: 100%; height: 100%;" />
+      <img 
+      src="${iconUrl}" 
+      style="width: 100%; height: 100%;
+      filter: brightness(0) saturate(100%) invert(27%) sepia(98%) saturate(7495%) hue-rotate(356deg) brightness(91%) contrast(118%);
+      " 
+      
+      />
     </div>
   `;
 
@@ -184,7 +189,6 @@ const MapView = () => {
     );
 
     socketRef.current.on("flightsData", (data) => {
-      console.log(data);
       setFlights(data.ac || []);
     });
 

@@ -10,7 +10,7 @@ export function MapBounds({ setBoundries }) {
   useEffect(() => {
     const handleMoveEnd = () => {
       const bounds = map.getBounds();
-      console.log("Map Bounds:", bounds);
+      // console.log("Map Bounds:", bounds);
 
       const southWest = bounds.getSouthWest();
       const northEast = bounds.getNorthEast();
@@ -20,7 +20,7 @@ export function MapBounds({ setBoundries }) {
         northEast,
       };
 
-      console.log(data);
+      // console.log(data);
       setBoundries(data);
     };
 
