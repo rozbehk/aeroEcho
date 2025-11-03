@@ -18,7 +18,7 @@ export default function HomePage() {
           </h1>
 
           <p className="text-lg md:text-xl text-blue-200 max-w-2xl">
-            Track live aircraft movements in real-time with advanced flight
+            Track live aircraft movements in real-time with advanced flights
             tracking technology
           </p>
           <Link href="/map">
