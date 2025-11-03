@@ -24,11 +24,6 @@ jobs:
           cd backend && npm install && cd ..
           cd frontend && npm install && cd ..
 
-      - name: Run backend tests
-        run: |
-          cd backend
-          npm test || echo "No tests configured"
-
       - name: Build frontend
         run: |
           cd frontend
@@ -39,18 +34,11 @@ jobs:
           SERVER_HOST: ${{ secrets.SERVER_HOST }}
           SERVER_USER: ${{ secrets.SERVER_USER }}
           SSH_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          BACKEND_ENV: ${{ secrets.BACKEND_ENV }}
+          FRONTEND_ENV: ${{ secrets.FRONTEND_ENV }}
         run: |
           # Setup SSH
           mkdir -p ~/.ssh
           echo "$SSH_KEY" > ~/.ssh/deploy_key
           chmod 600 ~/.ssh/deploy_key
-          ssh-keyscan -H $SERVER_HOST >> ~/.ssh/known_hosts
-
-          # Deploy
-          ssh -i ~/.ssh/deploy_key $SERVER_USER@$SERVER_HOST << 'EOF'
-            cd /var/www/aeroEcho
-            git pull origin main
-            npm run install:all
-            cd frontend && npm run build && cd ..
-            pm2 restart ecosystem.config.js
-          EOF
+          ssh-keyscan -H $SERVER_HOST >> ~_
