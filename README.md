@@ -4,7 +4,7 @@ A real-time flight tracking application that displays live aircraft movements on
 
 ![alt text](image.png)
 
-## 🚀 Features
+## 🚀 Featuress
 
 - **Real-Time Tracking**: Watch aircraft positions update instantly with WebSocket connections
 - **Global Coverage**: Track flights worldwide with extensive ADS-B network coverage
