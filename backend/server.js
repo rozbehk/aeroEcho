@@ -28,7 +28,7 @@ function logRequests(req, res, next) {
 }
 app.use(logRequests);
 
-const allowedOrigins = ["https://aeroecho.onrender.com"];
+const allowedOrigins = ["https://aeroecho.roozbehk.com"];
 
 if (NODE_ENV === "development" || NODE_ENV === "staging") {
   allowedOrigins.push("http://localhost:3000");
