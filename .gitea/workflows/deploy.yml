@@ -74,6 +74,15 @@ jobs:
             --exclude="backend/node_modules" \
             ./ $SERVER_USER@$SERVER_HOST:$DEPLOY_PATH
 
+      - name: Install production deps on server
+        env:
+          SERVER_HOST: ${{ secrets.SERVER_HOST }}
+          SERVER_USER: ${{ secrets.SERVER_USER }}
+          DEPLOY_PATH: "/var/www/aeroecho"
+        run: |
+          ssh prod "cd $DEPLOY_PATH/frontend && npm install --omit=dev"
+          ssh prod "cd $DEPLOY_PATH/backend && npm install --omit=dev"
+
       - name: Write backend env on server
         env:
           SERVER_HOST: ${{ secrets.SERVER_HOST }}
