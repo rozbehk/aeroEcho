@@ -17,10 +17,11 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: "20"
+
       - name: Install server tools
         run: |
-          sudo apt-get update
-          sudo apt-get install -y rsync
+          apt-get update
+          apt-get install -y rsync
 
       - name: Install dependencies
         run: |
