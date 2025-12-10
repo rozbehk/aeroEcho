@@ -25,41 +25,58 @@ jobs:
           cd frontend && npm install && cd ..
 
       - name: Build frontend
+        env:
+          FRONTEND_ENV: ${{ secrets.FRONTEND_ENV }}
         run: |
           cd frontend
+          echo "$FRONTEND_ENV" > .env.production
           npm run build
           cd ..
 
-      - name: Deploy to server
+      - name: Setup SSH for deploy
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          SERVER_HOST: ${{ secrets.SERVER_HOST }}
+          SERVER_USER: ${{ secrets.SERVER_USER }}
+        run: |
+          mkdir -p ~/.ssh
+          echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+
+          cat >> ~/.ssh/config <<EOF
+          Host prod
+            HostName $SERVER_HOST
+            User $SERVER_USER
+            IdentityFile ~/.ssh/id_ed25519
+            StrictHostKeyChecking no
+          EOF
+
+      - name: Upload project files to server
         env:
           SERVER_HOST: ${{ secrets.SERVER_HOST }}
           SERVER_USER: ${{ secrets.SERVER_USER }}
-          SSH_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
-          BACKEND_ENV: ${{ secrets.BACKEND_ENV }}
-          FRONTEND_ENV: ${{ secrets.FRONTEND_ENV }}
+          DEPLOY_PATH: "/var/www/aeroecho"
         run: |
-          mkdir -p ~/.ssh
-          echo "$SSH_KEY" > ~/.ssh/deploy_key
-          chmod 600 ~/.ssh/deploy_key
-          ssh-keyscan -H "$SERVER_HOST" >> ~/.ssh/known_hosts
+          rsync -avz --delete \
+            --exclude=".git" \
+            --exclude="node_modules" \
+            --exclude="frontend/node_modules" \
+            --exclude="backend/node_modules" \
+            ./ $SERVER_USER@$SERVER_HOST:$DEPLOY_PATH
 
-          # Sync project files
-          rsync -avz --exclude='.git' --exclude='node_modules' ./ "$SERVER_USER@$SERVER_HOST:/var/www/aeroecho"
+      - name: Write backend env on server
+        env:
+          SERVER_HOST: ${{ secrets.SERVER_HOST }}
+          SERVER_USER: ${{ secrets.SERVER_USER }}
+          BACKEND_ENV: ${{ secrets.BACKEND_ENV }}
+          DEPLOY_PATH: "/var/www/aeroecho"
+        run: |
+          ssh prod "echo \"$BACKEND_ENV\" > $DEPLOY_PATH/backend/.env"
 
-          # Create env files on remote server
-          ssh -i ~/.ssh/deploy_key "$SERVER_USER@$SERVER_HOST" << EOF
-          cd /var/www/aeroecho
-
-          echo "$BACKEND_ENV" > backend/.env
-          echo "$FRONTEND_ENV" > frontend/.env
-
-          npm install --prefix backend
-          npm install --prefix frontend
-
-          pm2 stop aeroecho-backend || true
-          pm2 stop aeroecho-frontend || true
-          pm2 delete aeroecho-backend || true
-          pm2 delete aeroecho-frontend || true
-          pm2 start ecosystem.config.js
-          pm2 save
-          EOF
+      - name: Restart PM2 services
+        env:
+          SERVER_HOST: ${{ secrets.SERVER_HOST }}
+          SERVER_USER: ${{ secrets.SERVER_USER }}
+        run: |
+          ssh prod "pm2 restart aeroecho-backend || pm2 start $DEPLOY_PATH/backend/ecosystem.config.js --only aeroecho-backend"
+          ssh prod "pm2 restart aeroecho-frontend || pm2 start $DEPLOY_PATH/frontend/ecosystem.config.js --only aeroecho-frontend"
