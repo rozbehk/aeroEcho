@@ -83,7 +83,7 @@ jobs:
         run: |
           ssh prod "echo \"$BACKEND_ENV\" > $DEPLOY_PATH/backend/.env"
 
-     - name: Restart PM2 services
+      - name: Restart PM2 services
         env:
           SERVER_HOST: ${{ secrets.SERVER_HOST }}
           SERVER_USER: ${{ secrets.SERVER_USER }}
@@ -91,4 +91,3 @@ jobs:
         run: |
           ssh prod "pm2 restart aeroecho-backend || pm2 start $DEPLOY_PATH/backend/ecosystem.config.js --only aeroecho-backend"
           ssh prod "pm2 restart aeroecho-frontend || pm2 start $DEPLOY_PATH/frontend/ecosystem.config.js --only aeroecho-frontend"
-
