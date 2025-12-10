@@ -8,6 +8,7 @@ module.exports = {
       env: {
         NODE_ENV: "production",
         PORT: 4001,
+        HOST: "127.0.0.1",
       },
     },
     {

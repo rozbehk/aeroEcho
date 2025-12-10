@@ -149,7 +149,7 @@ app.use((err, req, res, next) => {
 });
 
 // Set listening port
-server.listen(NODE_PORT, "localhost", async () => {
+server.listen(process.env.PORT, process.env.HOST, async () => {
   console.log(
     `Express Server with Socket.io started on Port: ${app.get(
       "port"

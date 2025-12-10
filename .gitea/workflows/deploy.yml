@@ -28,6 +28,7 @@ jobs:
         run: |
           cd frontend
           npm run build
+          cd ..
 
       - name: Deploy to server
         env:
@@ -37,8 +38,28 @@ jobs:
           BACKEND_ENV: ${{ secrets.BACKEND_ENV }}
           FRONTEND_ENV: ${{ secrets.FRONTEND_ENV }}
         run: |
-          # Setup SSH
           mkdir -p ~/.ssh
           echo "$SSH_KEY" > ~/.ssh/deploy_key
           chmod 600 ~/.ssh/deploy_key
           ssh-keyscan -H "$SERVER_HOST" >> ~/.ssh/known_hosts
+
+          # Sync project files
+          rsync -avz --exclude='.git' --exclude='node_modules' ./ "$SERVER_USER@$SERVER_HOST:/var/www/aeroecho"
+
+          # Create env files on remote server
+          ssh -i ~/.ssh/deploy_key "$SERVER_USER@$SERVER_HOST" << EOF
+          cd /var/www/aeroecho
+
+          echo "$BACKEND_ENV" > backend/.env
+          echo "$FRONTEND_ENV" > frontend/.env
+
+          npm install --prefix backend
+          npm install --prefix frontend
+
+          pm2 stop aeroecho-backend || true
+          pm2 stop aeroecho-frontend || true
+          pm2 delete aeroecho-backend || true
+          pm2 delete aeroecho-frontend || true
+          pm2 start ecosystem.config.js
+          pm2 save
+          EOF
